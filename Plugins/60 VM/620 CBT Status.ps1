@@ -1,9 +1,11 @@
-# Start of Settings 
+# Start of Settings
+$ClusterDoNotInclude = "Cluster1*|Cluster2*"
+$VMDoNotInclude = "VM1|VM2*"
 # End of Settings
 
 $CBTEnabled = $false
 
-$VMsCBTStatus = @($FullVm | Where-object {$_.Config.ChangeTrackingEnabled -eq $CBTEnabled} | Select-Object Name, @{Name="Change Block Tracking";Expression={if ($_.Config.ChangeTrackingEnabled) { "enabled" } else { "disabled" }}} | Sort Name)
+$VMsCBTStatus = @($VM | Where-object {$_.Name -notmatch $VMDoNotInclude} | Where-Object {$_.VMHost.Parent -notmatch $ClusterDoNotInclude} | Where-object {$_.ExtensionData.Config.ChangeTrackingEnabled -eq $CBTEnabled} | Select-Object Name, @{Name="Change Block Tracking";Expression={if ($_.Config.ChangeTrackingEnabled) { "enabled" } else { "disabled" }}} | Sort Name)
 $VMsCBTStatus
 
 $Title = "VM - Display all VMs with CBT not enabled"
