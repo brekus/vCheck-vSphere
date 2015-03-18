@@ -1,9 +1,10 @@
 # Start of Settings 
-# Local Stored VMs, do not report on any VMs who are defined here
+# Local Stored VMs, do not report on any VMs or Datastores who are defined here
 $LVMDoNotInclude = "Template_*|VDI*"
+$DSDoNotInclude = "DS1*|DS2*"
 # End of Settings
 
-$unSharedDatastore = $storageviews | ?{-Not $_.summary.multiplehostaccess} | Select -Expand Name
+$unSharedDatastore = $storageviews | ?{-Not $_.summary.multiplehostaccess} | ?{$_.Summary.Name -notmatch $DSDoNotInclude} | Select -Expand Name
 
 $Result = $FullVM | ?{$_.Name -notmatch $LVMDoNotInclude} | ?{$_.Runtime.ConnectionState -notmatch "invalid|orphaned"} | %{$_.layoutex.file} | ?{$_.type -ne "log" -and $_.name -notmatch ".vswp$" -And $unSharedDatastore -contains $_.name.Split(']')[0].Split('[')[1]} | Select Name
 $Result
